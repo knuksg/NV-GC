@@ -11,10 +11,13 @@ export default async (req, res) => {
     const client_id = process.env.NAVER_CLIENT_ID;
     const client_secret = process.env.NAVER_CLIENT_SECRET;
 
-    const url = `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${encodeURIComponent(address)}`;
+    const apiUrl = `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode`;
 
     try {
-        const response = await axios.get(url, {
+        const response = await axios.get(apiUrl, {
+            params: {
+                query: address,
+            },
             headers: {
                 "X-NCP-APIGW-API-KEY-ID": client_id,
                 "X-NCP-APIGW-API-KEY": client_secret,
@@ -23,7 +26,7 @@ export default async (req, res) => {
 
         if (response.data.addresses.length > 0) {
             const { x: longitude, y: latitude } = response.data.addresses[0];
-            res.json({ latitude, longitude });
+            res.status(200).json({ latitude, longitude });
         } else {
             res.status(404).json({ error: "좌표를 찾을 수 없습니다." });
         }
