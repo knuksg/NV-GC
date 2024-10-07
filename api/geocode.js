@@ -1,8 +1,21 @@
 // api/geocode.js
 
 import axios from "axios";
+import Cors from "cors";
+import initMiddleware from "../../init-middleware";
+
+// CORS 미들웨어 초기화
+const cors = initMiddleware(
+    Cors({
+        origin: "*", // 모든 도메인 허용 (필요에 따라 특정 도메인으로 변경)
+        methods: ["GET", "POST", "OPTIONS"],
+    })
+);
 
 export default async (req, res) => {
+    // CORS 미들웨어 실행
+    await cors(req, res);
+
     // 주소 파라미터 가져오기
     const { address } = req.query;
 
@@ -31,7 +44,6 @@ export default async (req, res) => {
 
         const data = response.data;
 
-        // 상태 코드 확인
         if (data.status === "OK") {
             const addresses = data.addresses;
 
@@ -47,7 +59,7 @@ export default async (req, res) => {
             res.status(500).json({ error: "Geocoding API 요청에 실패했습니다.", message: data.errorMessage });
         }
     } catch (error) {
-        console.error("Error:", error.message);
+        console.error("Error:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: "서버 오류가 발생했습니다." });
     }
 };
